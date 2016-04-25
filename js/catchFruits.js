@@ -1,34 +1,27 @@
-// var catchFruits = {
-
-    /*初始化事件*/
-    var initEvent = function() {
-        var self = this;
-        var newGame = document.getElementById('newGame');
-        if(window.addEventListener) {
-
-            newGame.addEventListener('click', function() {
-                console.log('ddd')
-                startNewGame();
-            }, false);
-        } else {
-            newGame.attachEvent('click', function() {
-                startNewGame();
-            }, false);
-        }
-    };
-
-    /*新游戏*/
-    var startNewGame = function() {
-        console.log('开始新游戏')
-        var self = this;
-        cancelAnimationFrame(window.game);
-        ctx.clearRect(0, 0, 400, 550);
-        gameStart();
-    };
-
-// };
+/*初始化事件*/
+var initEvent = function() {
+    var self = this;
+    var newGame = document.getElementById('newGame');
+    if(window.addEventListener) {
+        newGame.addEventListener('click', function() {
+            startNewGame();
+        }, false);
+    } else {
+        newGame.attachEvent('click', function() {
+            startNewGame();
+        }, false);
+    }
+};
 
 initEvent();
+
+/*新游戏*/
+var startNewGame = function() {
+    console.log('开始新游戏')
+    cancelAnimationFrame(window.game);
+    ctx.clearRect(0, 0, 400, 550);
+    gameStart();
+};
 
 // canvas画布
 var canvas = document.getElementById('canvas');
@@ -41,28 +34,33 @@ var score = 0;
 var time = 0;
 
 // 计时器
-var calculateTime;
-var newFruit;
+var calculateTime;  // 计算时间
+var newFruit;  // 创建水果
 
 // 分数和计时的DOM元素
 var scoreEle = document.getElementById('score').getElementsByTagName('span')[0];
 var timeEle = document.getElementById('time').getElementsByTagName('span')[0];
 
-// 图片
-var fruitSrcArr = ['apple', 'orange', 'banana', 'watermelon','grape','papaya','pineapple','greenApple','strawberry'];
-var fruitIndex = Math.ceil(Math.random()*8);
-console.log(fruitIndex);
-var fruitImg = new Image();
-fruitImg.src = '../gainFruits/img/' + fruitSrcArr[fruitIndex] + '.png';
+// 获取水果图片
+var getFruitImg = function() {
+    var fruitSrcArr = ['apple', 'orange', 'banana', 'watermelon','grape','papaya','pineapple','greenApple','strawberry'];
+    var fruitIndex = Math.ceil(Math.random()*8);
+    // console.log(fruitSrcArr[fruitIndex]);
+    var fruitImg = new Image();
+    fruitImg.src = '../gainFruits/img/' + fruitSrcArr[fruitIndex] + '.png';
+    return fruitImg;
+};
 
-var rabbitImg = new Image();
-rabbitImg.src = '../gainFruits/img/rabbit.png';
+// 获取兔子图片
+var getRabbitImg = function() {
+    var rabbitImg = new Image();
+    rabbitImg.src = '../gainFruits/img/rabbit.png';
+    return rabbitImg;
+}
 
 
 
-
-
-// 水果
+// 水果对象
 var Fruit = function(obj) {
     this.imgObj = obj;
     this.x = Math.random() * (400 - 50);
@@ -90,19 +88,19 @@ Fruit.prototype.fall = function() {
     }
 };
 
-// 小兔子
+// 兔子对象
 var Rabbit = function(obj) {
     this.imgObj = obj;
-    this.x = 0;
-    this.y = 440;
     this.width = 80;
     this.height = 80;
-    this.speed = 0;
-    // this.isCatch = false;
+    this.x = (400 - this.width) / 2;  // 居中
+    this.y = 440;
+    this.speed = 20;
 }
 
 // 画出兔子
 Rabbit.prototype.draw = function() {
+
     ctx.drawImage(this.imgObj, this.x, this.y, this.width, this.height);
 };
 
@@ -110,18 +108,17 @@ Rabbit.prototype.draw = function() {
 Rabbit.prototype.move = function() {
     var self = this;
     document.onkeydown = function(e) {
-        if((self.x > 0) && (e.keyCode == 37)) {
+        console.log(e.keyCode,'>>>',self.x,'>>>')
+        // 左移
+        if((self.x >= 0) && (e.keyCode == 37)) {
             self.x -= self.speed;
+            // ctx.translate
         }
-        if((self.x < 400 - this.width) && (e.keyCode == 39)) {
+        // 右移
+        if((self.x < (400 - self.width)) && (e.keyCode == 39)) {
             self.x += self.speed;
         }
     };
-};
-
-// 接住水果
-Rabbit.prototype.catch = function() {
-
 };
 
 // 是否接到水果
@@ -130,12 +127,14 @@ var isCatch = function(rabbit, fruit) {
     var rabbitY = rabbit.y;
     var fruitX = fruit.x;
     var fruitY = fruit.y;
-    if(rabbitY - fruitY > 10 && Math.abs(rabbitX - fruitX) < 30) {
-        score ++;
+    if(rabbitY - fruitY < 10 && Math.abs(rabbitX - fruitX) < 20) {
+        score += 10;
         scoreEle.innerHTML = score;
         fruit.isCatch = true;
     }
 };
+
+
 
 // 游戏开始
 var gameStart = function(options) {
@@ -151,7 +150,7 @@ var gameStart = function(options) {
     calculateTime = setInterval(function() {
         timeEle.innerHTML = time--;
         if (time < 0 ) {
-            cancelAnimationFrame(game);
+            cancelAnimationFrame(window.game);
             clearInterval(calculateTime);
             var result = document.getElementById('result');
             result.style.display = 'block';
@@ -159,10 +158,11 @@ var gameStart = function(options) {
     }, 1000);
 
     var fruitArr = [];
-    console.log(rabbitImg.src)
+    var rabbitImg = getRabbitImg();
     var rabbit = new Rabbit(rabbitImg);
 
     newFruit = setInterval(function() {
+        var fruitImg = getFruitImg();
         var fruit = new Fruit(fruitImg);
         fruitArr.push(fruit);
     }, 1000);
@@ -170,7 +170,7 @@ var gameStart = function(options) {
 
     var render = function() {
         // var fruitNum = 5;
-
+        ctx.clearRect(0, 0, 400, 550);
         rabbit.draw();
         rabbit.move();
 
@@ -188,15 +188,4 @@ var gameStart = function(options) {
 
 
 };
-
-
-
-var gameOver = function() {
-    if (time <=0 ) {
-        cancelAnimationFrame(game);
-        clearInterval();
-        var result = document.getElemetById('result');
-        result.style.display = 'block';
-    }
-}
 
