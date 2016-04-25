@@ -67,7 +67,7 @@ var Fruit = function(obj) {
     this.y = 0;
     this.width = 60;
     this.height = 60;
-    this.speed = 5;
+    this.speed = 3;
     // 是否被接住
     this.isCatch = false;
     // 是否超出范围
@@ -100,7 +100,6 @@ var Rabbit = function(obj) {
 
 // 画出兔子
 Rabbit.prototype.draw = function() {
-
     ctx.drawImage(this.imgObj, this.x, this.y, this.width, this.height);
 };
 
@@ -127,7 +126,7 @@ var isCatch = function(rabbit, fruit) {
     var rabbitY = rabbit.y;
     var fruitX = fruit.x;
     var fruitY = fruit.y;
-    if(rabbitY - fruitY < 10 && Math.abs(rabbitX - fruitX) < 20) {
+    if(fruit.isCatch == false && rabbitY - fruitY < 0 && Math.abs(rabbitX - fruitX) < 40) {
         score += 10;
         scoreEle.innerHTML = score;
         fruit.isCatch = true;
@@ -140,19 +139,20 @@ var isCatch = function(rabbit, fruit) {
 var gameStart = function(options) {
     console.log('游戏开始')
     window.score = 0;
-    time = 60;
+    time = 10;
 
     // 清除计时器
-    window.clearInterval(calculateTime);
-    window.clearInterval(newFruit);
+    clearInterval(calculateTime);
+    clearInterval(newFruit);
 
     // 计时开始
     calculateTime = setInterval(function() {
         timeEle.innerHTML = time--;
-        if (time < 0 ) {
+        if (time < 0) {
             cancelAnimationFrame(window.game);
             clearInterval(calculateTime);
             var result = document.getElementById('result');
+            result.getElementsByTagName('span')[0].innerHTML = score;
             result.style.display = 'block';
         }
     }, 1000);
@@ -165,11 +165,10 @@ var gameStart = function(options) {
         var fruitImg = getFruitImg();
         var fruit = new Fruit(fruitImg);
         fruitArr.push(fruit);
-    }, 1000);
+    }, 1500);
 
 
-    var render = function() {
-        // var fruitNum = 5;
+    var start = function() {
         ctx.clearRect(0, 0, 400, 550);
         rabbit.draw();
         rabbit.move();
@@ -181,10 +180,10 @@ var gameStart = function(options) {
 
         }
 
-        window.game = requestAnimationFrame(render);
+        window.game = requestAnimationFrame(start);
     };
 
-    render();
+    start();
 
 
 };
