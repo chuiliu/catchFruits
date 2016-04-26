@@ -36,6 +36,11 @@ var time = 0;
 // 计时器
 var calculateTime;  // 计算时间
 var newFruit;  // 创建水果
+var adjustMove;  // 调整
+
+//
+var left = false;
+var right = false;
 
 // 分数和计时的DOM元素
 var scoreEle = document.getElementById('score').getElementsByTagName('span')[0];
@@ -55,8 +60,10 @@ var getFruitImg = function() {
 var getRabbitImg = function() {
     var rabbitImg = new Image();
     rabbitImg.src = '../gainFruits/img/rabbit.png';
+    rabbitImg.style.ZIndex = 999;
     return rabbitImg;
 }
+
 
 
 
@@ -110,14 +117,25 @@ Rabbit.prototype.move = function() {
         console.log(e.keyCode,'>>>',self.x,'>>>')
         // 左移
         if((self.x >= 0) && (e.keyCode == 37)) {
-            self.x -= self.speed;
+            console.log('left')
+            left = true;
+            // self.x -= self.speed;
+
             // ctx.translate
         }
         // 右移
         if((self.x < (400 - self.width)) && (e.keyCode == 39)) {
-            self.x += self.speed;
+            console.log('right')
+            right = true;
+            // self.x += self.speed;
         }
+
+
     };
+    document.onkeyup = function(e) {
+        left = false;
+        right = false;
+    }
 };
 
 // 是否接到水果
@@ -137,13 +155,14 @@ var isCatch = function(rabbit, fruit) {
 
 // 游戏开始
 var gameStart = function(options) {
-    console.log('游戏开始')
+    console.log('游戏开始');
     window.score = 0;
-    time = 10;
+    time = 30;
 
     // 清除计时器
     clearInterval(calculateTime);
     clearInterval(newFruit);
+    clearInterval(adjustMove);
 
     // 计时开始
     calculateTime = setInterval(function() {
@@ -161,11 +180,23 @@ var gameStart = function(options) {
     var rabbitImg = getRabbitImg();
     var rabbit = new Rabbit(rabbitImg);
 
+    // 调整键盘平滑移动
+    adjustMove = setInterval(function() {
+        if((rabbit.x >= 0) && left) {
+            rabbit.x -= 2;
+        }
+        if((rabbit.x < (400 - rabbit.width)) && right) {
+            rabbit.x += 2;
+        }
+    }, 10);
+
     newFruit = setInterval(function() {
         var fruitImg = getFruitImg();
         var fruit = new Fruit(fruitImg);
         fruitArr.push(fruit);
-    }, 1500);
+    }, 1200);
+
+
 
 
     var start = function() {
