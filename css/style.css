@@ -1,6 +1,9 @@
 * {
     margin: 0;
     padding: 0;
+}
+
+body {
     font-family: "microsoft yahei";
 }
 
@@ -8,7 +11,7 @@
     width: 400px;
     height: 550px;
     margin: 0 auto;
-    margin-top: -50px;
+    margin-top: 50px;
     background: rgba(254,214,143,1);
 }
 
@@ -26,9 +29,9 @@
 #result {
     position: absolute;
     width: 300px;
-    height: 180px;
+    height: 200px;
     left: 37.5%;
-    top: 40%;
+    top: 35%;
     margin: 0 auto;
     text-align: center;
     font-size: 40px;
@@ -36,25 +39,24 @@
     padding: 20px;
     border-radius: 5px;
     background: rgba(248,164,17,0.6);
-    display: none;
 }
 
 .hide {
     display: none;
 }
 
-h2 {
+/*h2 {
     margin-left: 150px;
     margin-top: 20px;
     width: 150px;
     height: 50px;
     text-align: center;
-}
+}*/
 
 #newGame {
-    margin-left: 150px;
     width: 150px;
     height: 50px;
+    margin: 10px auto;
     line-height: 50px;
     text-align: center;
     color: #fff;

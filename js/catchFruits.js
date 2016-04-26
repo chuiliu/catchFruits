@@ -1,3 +1,27 @@
+// canvas画布
+var canvas = document.getElementById('canvas');
+canvas.width = 400;
+canvas.height = 550;
+var ctx = canvas.getContext('2d');
+
+// 分数和计时
+var score = 0;
+var time = 0;
+
+// 计时器
+var calculateTime;  // 计算时间
+var newFruit;  // 创建水果
+var adjustMove;  // 调整
+var showScore;  // 显示加分
+
+// 判断左右移动
+var left = false;
+var right = false;
+
+// 分数和计时的DOM元素
+var scoreEle = document.getElementById('score').getElementsByTagName('span')[0];
+var timeEle = document.getElementById('time').getElementsByTagName('span')[0];
+
 /*初始化事件*/
 var initEvent = function() {
     var self = this;
@@ -23,33 +47,11 @@ var startNewGame = function() {
     gameStart();
 };
 
-// canvas画布
-var canvas = document.getElementById('canvas');
-canvas.width = 400;
-canvas.height = 550;
-var ctx = canvas.getContext('2d');
-
-// 分数和计时
-var score = 0;
-var time = 0;
-
-// 计时器
-var calculateTime;  // 计算时间
-var newFruit;  // 创建水果
-var adjustMove;  // 调整
-
-//
-var left = false;
-var right = false;
-
-// 分数和计时的DOM元素
-var scoreEle = document.getElementById('score').getElementsByTagName('span')[0];
-var timeEle = document.getElementById('time').getElementsByTagName('span')[0];
 
 // 获取水果图片
 var getFruitImg = function() {
     var fruitSrcArr = ['apple', 'orange', 'banana', 'watermelon','grape','papaya','pineapple','greenApple','strawberry'];
-    var fruitIndex = Math.ceil(Math.random()*8);
+    var fruitIndex = Math.ceil(Math.random() * 8);
     // console.log(fruitSrcArr[fruitIndex]);
     var fruitImg = new Image();
     fruitImg.src = '../gainFruits/img/' + fruitSrcArr[fruitIndex] + '.png';
@@ -60,9 +62,16 @@ var getFruitImg = function() {
 var getRabbitImg = function() {
     var rabbitImg = new Image();
     rabbitImg.src = '../gainFruits/img/rabbit.png';
-    rabbitImg.style.ZIndex = 999;
+    // rabbitImg.style.zIndex = 999;
     return rabbitImg;
-}
+};
+
+// 获取加分图片
+var getScoreImg = function() {
+    var scoreImg = new Image();
+    scoreImg.src = '../gainFruits/img/10.png';
+    return scoreImg;
+};
 
 
 
@@ -102,8 +111,7 @@ var Rabbit = function(obj) {
     this.height = 80;
     this.x = (400 - this.width) / 2;  // 居中
     this.y = 440;
-    this.speed = 20;
-}
+};
 
 // 画出兔子
 Rabbit.prototype.draw = function() {
@@ -114,29 +122,50 @@ Rabbit.prototype.draw = function() {
 Rabbit.prototype.move = function() {
     var self = this;
     document.onkeydown = function(e) {
-        console.log(e.keyCode,'>>>',self.x,'>>>')
+        // console.log(e.keyCode,'>>>',self.x);
         // 左移
         if((self.x >= 0) && (e.keyCode == 37)) {
-            console.log('left')
             left = true;
-            // self.x -= self.speed;
-
-            // ctx.translate
         }
         // 右移
         if((self.x < (400 - self.width)) && (e.keyCode == 39)) {
-            console.log('right')
             right = true;
-            // self.x += self.speed;
         }
-
-
     };
     document.onkeyup = function(e) {
         left = false;
         right = false;
     }
 };
+
+
+// 分数对象
+var Score = function(obj) {
+    this.imgObj = obj;
+    this.width = 40;
+    this.height = 40;
+    this.x = 0;
+    this.y = 400;
+    this.speed = 3;
+    // 是否消失
+    this.isDisappear = false;
+};
+
+// 画出分数
+Score.prototype.draw = function() {
+    ctx.drawImage(this.imgObj, this.x, this.y, this.width, this.height);
+};
+
+// 分数上升
+Score.prototype.up = function() {
+    if(!this.isDisappear && this.y > 200) {
+        this.y -= this.speed;
+    } else {
+        this.isDisappear = true;
+    }
+};
+
+
 
 // 是否接到水果
 var isCatch = function(rabbit, fruit) {
@@ -156,13 +185,15 @@ var isCatch = function(rabbit, fruit) {
 // 游戏开始
 var gameStart = function(options) {
     console.log('游戏开始');
-    window.score = 0;
+    score = 0;
     time = 30;
 
     // 清除计时器
     clearInterval(calculateTime);
     clearInterval(newFruit);
     clearInterval(adjustMove);
+
+    result.style.display = 'none';
 
     // 计时开始
     calculateTime = setInterval(function() {
@@ -171,7 +202,7 @@ var gameStart = function(options) {
             cancelAnimationFrame(window.game);
             clearInterval(calculateTime);
             var result = document.getElementById('result');
-            result.getElementsByTagName('span')[0].innerHTML = score;
+            result.getElementsByTagName('span')[0].innerHTML = 'Game Over\nYour Score: ' + score;
             result.style.display = 'block';
         }
     }, 1000);
@@ -180,23 +211,23 @@ var gameStart = function(options) {
     var rabbitImg = getRabbitImg();
     var rabbit = new Rabbit(rabbitImg);
 
-    // 调整键盘平滑移动
-    adjustMove = setInterval(function() {
-        if((rabbit.x >= 0) && left) {
-            rabbit.x -= 2;
-        }
-        if((rabbit.x < (400 - rabbit.width)) && right) {
-            rabbit.x += 2;
-        }
-    }, 10);
 
+    // 创建水果
     newFruit = setInterval(function() {
         var fruitImg = getFruitImg();
         var fruit = new Fruit(fruitImg);
         fruitArr.push(fruit);
     }, 1200);
 
-
+    // 调整兔子平滑移动
+    adjustMove = setInterval(function() {
+        if((rabbit.x >= 0) && left) {
+            rabbit.x -= 3;
+        }
+        if((rabbit.x < (400 - rabbit.width)) && right) {
+            rabbit.x += 3;
+        }
+    }, 10);
 
 
     var start = function() {
@@ -209,13 +240,31 @@ var gameStart = function(options) {
             fruitArr[i].fall();
             isCatch(rabbit, fruitArr[i]);
 
+            if (fruitArr[i].isCatch || fruitArr[i].isOut) {
+                // 删除水果
+                // ctx.clearRect(0, 0, 400, 550);
+
+                if (fruitArr[i].isCatch) {
+                    var scoreImg = getScoreImg();
+                    var scoreObj = new Score(scoreImg);
+                    setTimeout(function() {
+                        scoreObj.x = fruitArr[i].x;
+                        scoreObj.draw();
+                        scoreObj.up();
+                    }, 1000);
+
+                }
+                fruitArr.splice(fruitArr[i], 1);
+
+            }
         }
+
+
 
         window.game = requestAnimationFrame(start);
     };
 
     start();
-
 
 };
 
