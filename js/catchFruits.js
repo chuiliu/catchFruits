@@ -54,14 +54,14 @@ var getFruitImg = function() {
     var fruitIndex = Math.ceil(Math.random() * 8);
     // console.log(fruitSrcArr[fruitIndex]);
     var fruitImg = new Image();
-    fruitImg.src = '../gainFruits/img/' + fruitSrcArr[fruitIndex] + '.png';
+    fruitImg.src = '../catchFruits/img/' + fruitSrcArr[fruitIndex] + '.png';
     return fruitImg;
 };
 
 // 获取兔子图片
 var getRabbitImg = function() {
     var rabbitImg = new Image();
-    rabbitImg.src = '../gainFruits/img/rabbit.png';
+    rabbitImg.src = '../catchFruits/img/rabbit.png';
     // rabbitImg.style.zIndex = 999;
     return rabbitImg;
 };
@@ -69,7 +69,7 @@ var getRabbitImg = function() {
 // 获取加分图片
 var getScoreImg = function() {
     var scoreImg = new Image();
-    scoreImg.src = '../gainFruits/img/10.png';
+    scoreImg.src = '../catchFruits/img/10.png';
     return scoreImg;
 };
 
@@ -146,7 +146,7 @@ var Score = function(obj) {
     this.height = 40;
     this.x = 0;
     this.y = 400;
-    this.speed = 3;
+    this.speed = 10;
     // 是否消失
     this.isDisappear = false;
 };
@@ -158,7 +158,9 @@ Score.prototype.draw = function() {
 
 // 分数上升
 Score.prototype.up = function() {
-    if(!this.isDisappear && this.y > 200) {
+    console.log('分数上升')
+    if(!this.isDisappear && this.y > 0) {
+        console.log('hahahahah')
         this.y -= this.speed;
     } else {
         this.isDisappear = true;
@@ -235,6 +237,8 @@ var gameStart = function(options) {
         rabbit.draw();
         rabbit.move();
 
+        var scoreArr = [];
+
         for (var i in fruitArr) {
             fruitArr[i].draw();
             fruitArr[i].fall();
@@ -247,17 +251,25 @@ var gameStart = function(options) {
                 if (fruitArr[i].isCatch) {
                     var scoreImg = getScoreImg();
                     var scoreObj = new Score(scoreImg);
-                    setTimeout(function() {
-                        scoreObj.x = fruitArr[i].x;
-                        scoreObj.draw();
-                        scoreObj.up();
-                    }, 1000);
+                    scoreObj.x = fruitArr[i].x;
+                    scoreArr.push(scoreObj);
+
+
+                    fruitArr.splice(fruitArr[i], 1);
 
                 }
-                fruitArr.splice(fruitArr[i], 1);
+
 
             }
         }
+
+        console.log('>>>>>>>>>>>>>>>>>>>>>', scoreArr)
+
+        for (var i in scoreArr) {
+            scoreArr[i].draw();
+            scoreArr[i].up();
+        }
+
 
 
 
